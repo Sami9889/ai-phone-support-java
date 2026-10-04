@@ -8,6 +8,7 @@ import com.sami9889.aiphonesupport.repository.PhoneNumberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +23,9 @@ public class PhoneNumberProvisioningService {
     private final ClientRepository clientRepository;
     private final PhoneNumberRepository phoneNumberRepository;
 
+    @Value("${app.telephony.asterisk.enabled:false}")
+    private boolean outboundGatewayEnabled;
+
     private static final AtomicLong NUMBER_SEQUENCE = new AtomicLong(5000000L);
 
     public Client registerClient(ClientRegistrationRequest request) {
@@ -33,7 +37,17 @@ public class PhoneNumberProvisioningService {
             throw new IllegalArgumentException("A client with this email already exists.");
         }
 
-        String phoneNumber = generateNumber(request.countryCode());
+        String phoneNumber;
+        if (StringUtils.hasText(request.phoneNumber())) {
+            phoneNumber = normalizeNumber(request.phoneNumber());
+            if (phoneNumberRepository.findByNumber(phoneNumber).isPresent()) {
+                throw new IllegalArgumentException("This phone number is already assigned.");
+            }
+        } else if (outboundGatewayEnabled) {
+            throw new IllegalArgumentException("A Telstra-provisioned caller ID is required when outbound dialing is enabled.");
+        } else {
+            phoneNumber = generateNumber(request.countryCode());
+        }
 
         Client client = new Client();
         client.setClientCode(UUID.randomUUID().toString());
@@ -62,11 +76,18 @@ public class PhoneNumberProvisioningService {
         if (!StringUtils.hasText(calledNumber)) {
             return Optional.empty();
         }
-        return clientRepository.findByPhoneNumber(normalizeNumber(calledNumber));
+        return phoneNumberRepository.findByNumberAndStatus(normalizeNumber(calledNumber), "ASSIGNED")
+                .flatMap(assignment -> clientRepository.findById(assignment.getClientId()));
     }
 
     public List<PhoneNumberAssignment> getNumbersForClient(Long clientId) {
         return phoneNumberRepository.findByClientId(clientId);
+    }
+
+    public String getPrimaryAssignedNumber(Long clientId) {
+        return phoneNumberRepository.findFirstByClientIdAndStatusOrderByAssignedAtAsc(clientId, "ASSIGNED")
+                .map(PhoneNumberAssignment::getNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Client has no active assigned phone number: " + clientId));
     }
 
     private String generateNumber(String countryCode) {

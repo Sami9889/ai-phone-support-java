@@ -1,0 +1,102 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ai-phone-support
+data:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: ai_phone_support
+  DB_USERNAME: ai_phone_support
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  APP_SECURITY_ENABLED: "true"
+  JWT_ISSUER_URI: https://identity.example.com/
+  ASTERISK_ARI_ENABLED: "true"
+  ASTERISK_ARI_BASE_URL: http://asterisk-ari:8088/ari/
+  TELSTRA_SIP_ENDPOINT_PREFIX: PJSIP/
+  TELSTRA_SIP_ENDPOINT_SUFFIX: "@telstra"
+  TELSTRA_DIALPLAN_CONTEXT: ai-outbound
+  TELSTRA_DIALPLAN_EXTENSION: s
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-phone-support
+  labels:
+    app: ai-phone-support
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ai-phone-support
+  template:
+    metadata:
+      labels:
+        app: ai-phone-support
+    spec:
+      containers:
+        - name: app
+          image: ai-phone-support:0.0.1-SNAPSHOT
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: ai-phone-support
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ai-phone-support-secrets
+                  key: DB_PASSWORD
+            - name: WEBHOOK_SHARED_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-phone-support-secrets
+                  key: WEBHOOK_SHARED_SECRET
+            - name: ASTERISK_ARI_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: ai-phone-support-secrets
+                  key: ASTERISK_ARI_USERNAME
+            - name: ASTERISK_ARI_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ai-phone-support-secrets
+                  key: ASTERISK_ARI_PASSWORD
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-phone-support
+spec:
+  selector:
+    app: ai-phone-support
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+  type: ClusterIP

@@ -1,0 +1,1 @@
+ALTER TABLE call_sessions ADD COLUMN gateway_channel_id VARCHAR(255);

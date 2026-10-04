@@ -4,13 +4,14 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "call_sessions")
 @Getter
 @Setter
-public class CallSession {
+public class CallSession implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,6 +40,11 @@ public class CallSession {
 
     @Column(columnDefinition = "TEXT")
     private String aiResponse;
+
+    @Column(nullable = false)
+    private boolean escalationRequested;
+
+    private String gatewayChannelId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

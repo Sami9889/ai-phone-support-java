@@ -36,4 +36,18 @@ public class AiPhoneSupportService {
 
         return "I understand you are asking for support. I can help with billing, subscriptions, technical issues, or account access. Please tell me a little more about your issue.";
     }
+
+    public boolean requiresHumanEscalation(String transcript) {
+        if (transcript == null || transcript.isBlank()) {
+            return false;
+        }
+
+        String normalized = transcript.toLowerCase(Locale.ROOT);
+        return normalized.contains("human")
+                || normalized.contains("agent")
+                || normalized.contains("person")
+                || normalized.contains("representative")
+                || normalized.contains("connect me")
+                || normalized.contains("speak to someone");
+    }
 }

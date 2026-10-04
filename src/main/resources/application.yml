@@ -5,12 +5,16 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       show-details: always
 
 spring:
+  cache:
+    type: simple
+  flyway:
+    enabled: false
   datasource:
     url: jdbc:h2:mem:ai-phone-support;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
@@ -29,6 +33,11 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
 
 app:
+  security:
+    enabled: false
+  events:
+    kafka:
+      enabled: false
   telemetry:
     enabled: true
     customer-brand-prefix: "Apex"

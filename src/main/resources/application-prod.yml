@@ -1,0 +1,66 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:ai_phone_support}
+    username: ${DB_USERNAME:ai_phone_support}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 5m
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:kafka:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${JWT_ISSUER_URI:}
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+app:
+  telephony:
+    asterisk:
+      enabled: ${ASTERISK_ARI_ENABLED:false}
+      base-url: ${ASTERISK_ARI_BASE_URL:http://asterisk:8088/ari/}
+      username: ${ASTERISK_ARI_USERNAME:}
+      password: ${ASTERISK_ARI_PASSWORD:}
+      endpoint-prefix: ${TELSTRA_SIP_ENDPOINT_PREFIX:PJSIP/}
+      endpoint-suffix: ${TELSTRA_SIP_ENDPOINT_SUFFIX:@telstra}
+      context: ${TELSTRA_DIALPLAN_CONTEXT:ai-outbound}
+      extension: ${TELSTRA_DIALPLAN_EXTENSION:s}
+      timeout-seconds: ${TELSTRA_CALL_TIMEOUT_SECONDS:45}
+  security:
+    enabled: ${APP_SECURITY_ENABLED:true}
+    webhook-token: ${WEBHOOK_SHARED_SECRET:}
+  events:
+    kafka:
+      enabled: true
+      topic: ${CALL_EVENTS_TOPIC:call-events}
+      partitions: ${CALL_EVENTS_PARTITIONS:3}
+      replicas: ${CALL_EVENTS_REPLICAS:3}

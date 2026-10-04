@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/calls")
@@ -38,14 +37,10 @@ public class InboundCallController {
         String calledNumber = payload != null && payload.get("to") != null ? payload.get("to").toString() : params.get("To");
         String callerNumber = payload != null && payload.get("from") != null ? payload.get("from").toString() : params.getOrDefault("From", "Unknown caller");
 
-        Optional<Client> client = clientRepository.findByPhoneNumber(calledNumber);
-        if (client.isEmpty()) {
-            return ResponseEntity.ok("<Response><Say>Sorry, this number is not recognized.</Say><Hangup/></Response>");
-        }
-
         try {
             CallSession session = callSessionService.initializeInboundCall(calledNumber, callerNumber);
-            String companyName = client.get().getCompanyName();
+            Client client = clientRepository.findById(session.getClientId()).orElseThrow();
+            String companyName = client.getCompanyName();
             String greeting = aiPhoneSupportService.buildGreeting(callerNumber);
 
             String xml = """
@@ -59,7 +54,7 @@ public class InboundCallController {
                 """.formatted(greeting, companyName, session.getCallId());
 
             callSessionService.updateCallStatus(session.getCallId(), "ringing");
-            auditLogService.record("CALL_INBOUND", "Inbound call accepted", client.get().getId(), session.getCallId());
+            auditLogService.record("CALL_INBOUND", "Inbound call accepted", client.getId(), session.getCallId());
             return ResponseEntity.ok(xml);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok("<Response><Say>Sorry, this number is not recognized.</Say><Hangup/></Response>");
@@ -74,20 +69,22 @@ public class InboundCallController {
                 ? payload.get("transcript").toString()
                 : params.getOrDefault("SpeechResult", "");
 
-        String responseText = aiPhoneSupportService.generateReply(transcript);
-
+                CallSessionService.SpeechHandlingResult result;
         try {
-            callSessionService.recordTranscript(callId, transcript, responseText);
-        } catch (IllegalArgumentException ignored) {
+                        result = callSessionService.handleSpeech(callId, transcript);
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.notFound().build();
         }
 
         String xml = """
             <Response>
-              <Say voice="woman" language="en-US">%s</Say>
+                            <Say voice="woman" language="en-US">%s</Say>
               <Pause length="1"/>
-              <Say>Would you like to hear our support options again or speak with a human agent?</Say>
+                            <Say>%s</Say>
             </Response>
-            """.formatted(responseText);
+                        """.formatted(result.response(), result.escalationRequested()
+                                ? "Your request for a human specialist has been recorded."
+                                : "Would you like to hear our support options again or speak with a human agent?");
 
         return ResponseEntity.ok(xml);
     }
