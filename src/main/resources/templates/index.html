@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>AI Phone Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/site.css}"/>
+</head>
+<body>
+<header class="site-header">
+    <div class="container nav">
+        <div class="brand">
+            <span class="brand-mark">AI</span>
+            <span>Phone Support</span>
+        </div>
+        <nav>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it works</a>
+            <a href="#pricing">Pricing</a>
+            <a href="/signup" class="button button-light">Get started</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+                <span class="eyebrow">Smarter customer calls</span>
+                <h1>AI phone support that feels human from the first ring.</h1>
+                <p>
+                    Answer calls, qualify leads, triage support requests, and escalate to a live agent when needed.
+                    Built for businesses that want a better front desk without hiring more staff.
+                </p>
+                <div class="cta-row">
+                    <a href="/signup" class="button button-primary">Start free</a>
+                    <a href="#features" class="button button-secondary">See features</a>
+                </div>
+                <ul class="hero-points">
+                    <li>24/7 AI inbound handling</li>
+                    <li>Call recording and auditing</li>
+                    <li>Custom business workflows</li>
+                </ul>
+            </div>
+            <div class="hero-card">
+                <div class="mini-label">Live calling status</div>
+                <h3>Inbound + outbound call orchestration</h3>
+                <div class="status-row">
+                    <span class="status-dot"></span>
+                    <span>System online</span>
+                </div>
+                <div class="stat-grid">
+                    <div>
+                        <strong>99.9%</strong>
+                        <span>call uptime</span>
+                    </div>
+                    <div>
+                        <strong>3x</strong>
+                        <span>faster triage</span>
+                    </div>
+                    <div>
+                        <strong>24/7</strong>
+                        <span>coverage</span>
+                    </div>
+                    <div>
+                        <strong>AI</strong>
+                        <span>voice agent</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">Why teams switch</span>
+                <h2>Everything you need to automate phone support</h2>
+            </div>
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <h3>Always-on answering</h3>
+                    <p>Route missed calls, after-hours messages, and repeat inquiries without burning your team.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Smart call routing</h3>
+                    <p>Send customers to voicemail, the right department, or a live agent based on intent.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Audit & reporting</h3>
+                    <p>Track every call, escalation, and resolution with a searchable call history and audit trail.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="section dark-section">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">How it works</span>
+                <h2>Launch in three simple steps</h2>
+            </div>
+            <div class="steps-grid">
+                <div class="step">
+                    <span>01</span>
+                    <h3>Sign up</h3>
+                    <p>Create your account and set your business details.</p>
+                </div>
+                <div class="step">
+                    <span>02</span>
+                    <h3>Configure</h3>
+                    <p>Choose your support flow, number, and call-handling rules.</p>
+                </div>
+                <div class="step">
+                    <span>03</span>
+                    <h3>Go live</h3>
+                    <p>Start answering calls instantly with AI-guided support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="section">
+        <div class="container">
+            <div class="section-heading">
+                <span class="eyebrow">Pricing</span>
+                <h2>Simple plans for growing teams</h2>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$49<span>/mo</span></div>
+                    <ul>
+                        <li>1 AI phone line</li>
+                        <li>Call routing</li>
+                        <li>Email support</li>
+                    </ul>
+                </div>
+                <div class="pricing-card featured">
+                    <h3>Growth</h3>
+                    <div class="price">$149<span>/mo</span></div>
+                    <ul>
+                        <li>Unlimited call handling</li>
+                        <li>Advanced escalation</li>
+                        <li>Audit dashboard</li>
+                    </ul>
+                </div>
+                <div class="pricing-card">
+                    <h3>Enterprise</h3>
+                    <div class="price">Custom</div>
+                    <ul>
+                        <li>White-glove onboarding</li>
+                        <li>Custom integrations</li>
+                        <li>Priority support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="container footer-row">
+        <div>
+            <span class="brand-mark">AI</span>
+            <span>Phone Support</span>
+        </div>
+        <p>© 2026 Apex AI Voice</p>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sign up | AI Phone Support</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/site.css}"/>
+</head>
+<body class="auth-page">
+<header class="site-header compact-header">
+    <div class="container nav">
+        <a href="/" class="brand">
+            <span class="brand-mark">AI</span>
+            <span>Phone Support</span>
+        </a>
+        <a href="/" class="button button-light">Back home</a>
+    </div>
+</header>
+
+<main class="auth-wrap">
+    <section class="auth-card">
+        <div class="auth-copy">
+            <span class="eyebrow">Get started</span>
+            <h1>Set up your AI phone support workspace</h1>
+            <p>Tell us about your business and we’ll configure your onboarding flow.</p>
+        </div>
+
+        <form th:action="@{/signup}" th:object="${client}" method="post" class="signup-form">
+            <div th:if="${#fields.hasAnyErrors()}" class="form-error-box">
+                <p th:each="err : ${#fields.errors('*')}" th:text="${err}">Please fix the highlighted fields.</p>
+            </div>
+
+            <label>
+                Company name
+                <input type="text" th:field="*{companyName}" placeholder="Acme Corp" required/>
+            </label>
+
+            <label>
+                Contact name
+                <input type="text" th:field="*{contactName}" placeholder="Jane Smith" required/>
+            </label>
+
+            <label>
+                Work email
+                <input type="email" th:field="*{email}" placeholder="jane@company.com" required/>
+            </label>
+
+            <div class="two-col">
+                <label>
+                    Country
+                    <select th:field="*{countryCode}">
+                        <option value="US">United States</option>
+                        <option value="AU">Australia</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="CA">Canada</option>
+                    </select>
+                </label>
+
+                <label>
+                    Use case
+                    <input type="text" th:field="*{useCase}" placeholder="Customer support" required/>
+                </label>
+            </div>
+
+            <label>
+                Preferred number (optional)
+                <input type="text" th:field="*{phoneNumber}" placeholder="+1 415 555 0123"/>
+            </label>
+
+            <button type="submit" class="button button-primary full-width">Create account</button>
+        </form>
+    </section>
+</main>
+</body>
+</html>
