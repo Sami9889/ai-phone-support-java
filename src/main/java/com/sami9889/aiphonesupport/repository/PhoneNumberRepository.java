@@ -1,6 +1,6 @@
 package com.sami9889.aiphonesupport.repository;
 
-import com.sami9889.aiphonesupport.model.PhoneNumberAssignment;
+import com.sami9889.aiphonesupport.domain.PhoneNumberAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

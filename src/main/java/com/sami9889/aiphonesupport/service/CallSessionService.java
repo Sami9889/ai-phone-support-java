@@ -1,7 +1,7 @@
 package com.sami9889.aiphonesupport.service;
 
-import com.sami9889.aiphonesupport.model.CallSession;
-import com.sami9889.aiphonesupport.model.ClientProfile;
+import com.sami9889.aiphonesupport.domain.CallSession;
+import com.sami9889.aiphonesupport.domain.Client;
 import com.sami9889.aiphonesupport.repository.CallSessionRepository;
 import com.sami9889.aiphonesupport.repository.ClientRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ public class CallSessionService {
     private final ClientRepository clientRepository;
 
     public CallSession initializeInboundCall(String calledNumber, String callerNumber) {
-        Optional<ClientProfile> client = clientRepository.findByPhoneNumber(calledNumber);
+        Optional<Client> client = clientRepository.findByPhoneNumber(calledNumber);
         if (client.isEmpty()) {
             throw new IllegalArgumentException("No client found for phone number: " + calledNumber);
         }
@@ -38,7 +38,7 @@ public class CallSessionService {
     }
 
     public CallSession initializeOutboundCall(Long clientId, String toNumber) {
-        Optional<ClientProfile> client = clientRepository.findById(clientId);
+        Optional<Client> client = clientRepository.findById(clientId);
         if (client.isEmpty()) {
             throw new IllegalArgumentException("Client not found: " + clientId);
         }
@@ -46,7 +46,7 @@ public class CallSessionService {
         CallSession session = new CallSession();
         session.setCallId(UUID.randomUUID().toString());
         session.setClientId(clientId);
-        session.setFromNumber(client.get().getPhoneNumber());
+        session.setFromNumber(client.get().getId() != null ? "CUSTOM:" + clientId : "CUSTOM");
         session.setToNumber(toNumber);
         session.setDirection("outbound");
         session.setStatus("initiated");

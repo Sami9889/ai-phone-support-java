@@ -1,7 +1,8 @@
 package com.sami9889.aiphonesupport.controller;
 
 import com.sami9889.aiphonesupport.dto.OutboundCallRequest;
-import com.sami9889.aiphonesupport.model.CallSession;
+import com.sami9889.aiphonesupport.domain.CallSession;
+import com.sami9889.aiphonesupport.service.AuditLogService;
 import com.sami9889.aiphonesupport.service.CallSessionService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +16,11 @@ import java.util.Map;
 public class OutboundCallController {
 
     private final CallSessionService callSessionService;
+    private final AuditLogService auditLogService;
 
-    public OutboundCallController(CallSessionService callSessionService) {
+    public OutboundCallController(CallSessionService callSessionService, AuditLogService auditLogService) {
         this.callSessionService = callSessionService;
+        this.auditLogService = auditLogService;
     }
 
     @PostMapping(value = "/outbound", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -25,6 +28,7 @@ public class OutboundCallController {
         try {
             CallSession session = callSessionService.initializeOutboundCall(request.clientId(), request.toNumber());
             callSessionService.updateCallStatus(session.getCallId(), "ringing");
+            auditLogService.record("CALL_OUTBOUND", "Outbound call initiated", request.clientId(), session.getCallId());
 
             return ResponseEntity.ok(Map.of(
                     "callId", session.getCallId(),

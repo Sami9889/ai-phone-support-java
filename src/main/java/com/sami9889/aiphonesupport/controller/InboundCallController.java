@@ -1,9 +1,10 @@
 package com.sami9889.aiphonesupport.controller;
 
-import com.sami9889.aiphonesupport.model.CallSession;
-import com.sami9889.aiphonesupport.model.ClientProfile;
+import com.sami9889.aiphonesupport.domain.CallSession;
+import com.sami9889.aiphonesupport.domain.Client;
 import com.sami9889.aiphonesupport.repository.ClientRepository;
 import com.sami9889.aiphonesupport.service.AiPhoneSupportService;
+import com.sami9889.aiphonesupport.service.AuditLogService;
 import com.sami9889.aiphonesupport.service.CallSessionService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +20,16 @@ public class InboundCallController {
     private final AiPhoneSupportService aiPhoneSupportService;
     private final ClientRepository clientRepository;
     private final CallSessionService callSessionService;
+    private final AuditLogService auditLogService;
 
     public InboundCallController(AiPhoneSupportService aiPhoneSupportService,
                                 ClientRepository clientRepository,
-                                CallSessionService callSessionService) {
+                                CallSessionService callSessionService,
+                                AuditLogService auditLogService) {
         this.aiPhoneSupportService = aiPhoneSupportService;
         this.clientRepository = clientRepository;
         this.callSessionService = callSessionService;
+        this.auditLogService = auditLogService;
     }
 
     @PostMapping(value = "/inbound", produces = MediaType.TEXT_XML_VALUE)
@@ -34,7 +38,7 @@ public class InboundCallController {
         String calledNumber = payload != null && payload.get("to") != null ? payload.get("to").toString() : params.get("To");
         String callerNumber = payload != null && payload.get("from") != null ? payload.get("from").toString() : params.getOrDefault("From", "Unknown caller");
 
-        Optional<ClientProfile> client = clientRepository.findByPhoneNumber(calledNumber);
+        Optional<Client> client = clientRepository.findByPhoneNumber(calledNumber);
         if (client.isEmpty()) {
             return ResponseEntity.ok("<Response><Say>Sorry, this number is not recognized.</Say><Hangup/></Response>");
         }
@@ -42,7 +46,7 @@ public class InboundCallController {
         try {
             CallSession session = callSessionService.initializeInboundCall(calledNumber, callerNumber);
             String companyName = client.get().getCompanyName();
-            String greeting = aiPhoneSupportService.buildInitialGreeting(callerNumber);
+            String greeting = aiPhoneSupportService.buildGreeting(callerNumber);
 
             String xml = """
                 <Response>
@@ -55,6 +59,7 @@ public class InboundCallController {
                 """.formatted(greeting, companyName, session.getCallId());
 
             callSessionService.updateCallStatus(session.getCallId(), "ringing");
+            auditLogService.record("CALL_INBOUND", "Inbound call accepted", client.get().getId(), session.getCallId());
             return ResponseEntity.ok(xml);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok("<Response><Say>Sorry, this number is not recognized.</Say><Hangup/></Response>");

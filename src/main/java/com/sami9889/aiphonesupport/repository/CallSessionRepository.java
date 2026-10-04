@@ -1,6 +1,6 @@
 package com.sami9889.aiphonesupport.repository;
 
-import com.sami9889.aiphonesupport.model.CallSession;
+import com.sami9889.aiphonesupport.domain.CallSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

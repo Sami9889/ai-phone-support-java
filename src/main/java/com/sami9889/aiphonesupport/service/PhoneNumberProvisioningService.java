@@ -1,8 +1,8 @@
 package com.sami9889.aiphonesupport.service;
 
 import com.sami9889.aiphonesupport.dto.ClientRegistrationRequest;
-import com.sami9889.aiphonesupport.model.ClientProfile;
-import com.sami9889.aiphonesupport.model.PhoneNumberAssignment;
+import com.sami9889.aiphonesupport.domain.Client;
+import com.sami9889.aiphonesupport.domain.PhoneNumberAssignment;
 import com.sami9889.aiphonesupport.repository.ClientRepository;
 import com.sami9889.aiphonesupport.repository.PhoneNumberRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,29 +24,28 @@ public class PhoneNumberProvisioningService {
 
     private static final AtomicLong NUMBER_SEQUENCE = new AtomicLong(5000000L);
 
-    public ClientProfile registerClient(ClientRegistrationRequest request) {
+    public Client registerClient(ClientRegistrationRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Client registration request is required.");
         }
 
-        if (StringUtils.hasText(request.email()) && clientRepository.findByEmail(request.email().trim()).isPresent()) {
+        if (clientRepository.findByEmail(request.email().trim()).isPresent()) {
             throw new IllegalArgumentException("A client with this email already exists.");
         }
 
         String phoneNumber = generateNumber(request.countryCode());
 
-        ClientProfile client = new ClientProfile();
+        Client client = new Client();
         client.setClientCode(UUID.randomUUID().toString());
         client.setCompanyName(request.companyName());
         client.setContactName(request.contactName());
         client.setEmail(request.email());
         client.setCountryCode(request.countryCode());
         client.setUseCase(request.useCase());
-        client.setPhoneNumber(phoneNumber);
         client.setStatus("ACTIVE");
         client.setCreatedAt(LocalDateTime.now());
 
-        ClientProfile savedClient = clientRepository.save(client);
+        Client savedClient = clientRepository.save(client);
 
         PhoneNumberAssignment assignment = new PhoneNumberAssignment();
         assignment.setNumber(phoneNumber);
@@ -59,21 +58,21 @@ public class PhoneNumberProvisioningService {
         return savedClient;
     }
 
-    public Optional<ClientProfile> findClientForCalledNumber(String calledNumber) {
+    public Optional<Client> findClientByPhoneNumber(String calledNumber) {
         if (!StringUtils.hasText(calledNumber)) {
             return Optional.empty();
         }
         return clientRepository.findByPhoneNumber(normalizeNumber(calledNumber));
     }
 
-    public List<PhoneNumberAssignment> findAssignedNumbersForClient(Long clientId) {
+    public List<PhoneNumberAssignment> getNumbersForClient(Long clientId) {
         return phoneNumberRepository.findByClientId(clientId);
     }
 
     private String generateNumber(String countryCode) {
         String region = StringUtils.hasText(countryCode) ? countryCode.trim().toUpperCase() : "US";
-
         long sequence = NUMBER_SEQUENCE.incrementAndGet();
+
         String areaCode = switch (region) {
             case "CA" -> "416";
             case "GB" -> "20";
