@@ -1,68 +1,77 @@
 # AI Phone Support Java
 
-A Spring Boot starter project for an AI-powered phone support system that can answer incoming calls, capture speech, and route to a human agent when needed.
+A custom Java AI phone support system built without any third-party telephony provider.
 
-Features:
-- Twilio phone number integration
-- Webhook-based call handling
-- Voice call greeting via TwiML
-- Speech transcription placeholder flow
-- AI support routing based on customer intent
-- Support number assignment service
-- Spring Boot app structure for extension
+This project models the core behavior of a telecom platform:
+- client registration
+- automatic phone number assignment
+- inbound call routing
+- outbound call control
+- call session logging
+- AI support response generation
 
-## Tech stack
-- Java 21
-- Spring Boot 3.3.x
-- Twilio Java SDK
-- Maven
+## Features
 
-## Quick start
+- Java 21 + Spring Boot 3
+- H2 in-memory database for local development
+- client-based phone number assignment
+- inbound phone call webhook flow
+- outbound call initiation
+- call history tracking
+- AI support response logic
 
-1. Clone the repository
-2. Set these environment variables:
-   - `TWILIO_ACCOUNT_SID`
-   - `TWILIO_AUTH_TOKEN`
-   - `TWILIO_PHONE_NUMBER`
-   - `OPENAI_API_KEY` (optional, for real AI responses)
-3. Run:
+## Core flow
+
+1. Register a client with company info
+2. System creates a dedicated support number for that client
+3. Telnyx/Twilio-like webhook is simulated through custom endpoints
+4. Incoming call is looked up by the called number
+5. AI support responds to the caller speech
+6. Calls are logged and stored in the database
+
+## API endpoints
+
+- `POST /api/clients/register`
+- `POST /api/calls/inbound`
+- `POST /api/calls/handle-speech`
+- `POST /api/calls/outbound`
+- `POST /api/calls/outbound/answer`
+- `POST /api/calls/outbound/complete`
+- `GET /api/calls/history/{clientId}`
+- `GET /api/health`
+
+## Example registration payload
+
+```json
+{
+  "companyName": "Acme Corp",
+  "contactName": "Jane Smith",
+  "email": "jane@acme.com",
+  "countryCode": "US",
+  "useCase": "Customer support"
+}
+```
+
+## Example response
+
+```json
+{
+  "clientCode": "...",
+  "companyName": "Acme Corp",
+  "phoneNumber": "+14155000001",
+  "status": "ACTIVE",
+  "provider": "custom-telephony"
+}
+```
+
+## Local startup
 
 ```bash
 mvn spring-boot:run
 ```
 
-4. Expose the app through a public URL using ngrok or a deployment platform.
-5. Configure your Twilio phone number webhook to:
-   - `https://your-domain/api/calls/incoming`
-
-## Endpoints
-
-- `GET /actuator/health` — health check
-- `POST /api/calls/incoming` — Twilio webhook for new call
-- `POST /api/calls/handle-speech` — receives speech input from caller
-- `POST /api/phone/assign` — returns a configured support number for use
-
-## Example flow
-
-1. Customer calls Twilio number
-2. Backend returns TwiML greeting and `Gather`
-3. Caller speaks issue
-4. Backend interprets request
-5. AI replies or transfers to human support
+Then call the app with your browser or a local HTTP client.
 
 ## Notes
 
-This is a starter project intended to be expanded with:
-- real speech-to-text integration
-- LLM-powered responses
-- CRM or ticketing system integration
-- call logging and analytics
-- escalation workflow
-
-## Production considerations
-
-- Keep secrets in environment variables or a secret manager
-- Validate inbound call signatures from Twilio
-- Add call recording and transcript storage
-- Add retry and queueing for external AI APIs
-- Use a robust DB for call sessions and customer interactions
+This is a custom telecom scratch implementation for learning and prototyping. It is not a real PSTN carrier, but it mirrors the product structure of a telephony platform.

@@ -7,39 +7,42 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "client_profiles")
+@Table(name = "call_sessions")
 @Getter
 @Setter
-public class ClientProfile {
+public class CallSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String clientCode;
+    private String callId;
 
     @Column(nullable = false)
-    private String companyName;
+    private Long clientId;
 
     @Column(nullable = false)
-    private String contactName;
-
-    @Column(nullable = false, unique = true)
-    private String email;
+    private String fromNumber;
 
     @Column(nullable = false)
-    private String countryCode;
+    private String toNumber;
 
     @Column(nullable = false)
-    private String useCase;
-
-    @Column(nullable = false)
-    private String phoneNumber;
+    private String direction;
 
     @Column(nullable = false)
     private String status;
 
+    @Column(columnDefinition = "TEXT")
+    private String transcript;
+
+    @Column(columnDefinition = "TEXT")
+    private String aiResponse;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    private LocalDateTime answeredAt;
+    private LocalDateTime endedAt;
 }

@@ -13,6 +13,10 @@ public class HealthController {
 
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
-        return ResponseEntity.ok(Map.of("status", "UP", "service", "ai-phone-support", "provider", "telnyx"));
+        return ResponseEntity.ok(Map.of(
+                "status", "UP",
+                "service", "ai-phone-support",
+                "provider", "custom-telephony"
+        ));
     }
 }

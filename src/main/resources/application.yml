@@ -15,7 +15,7 @@ spring:
     url: jdbc:h2:mem:ai-phone-support;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     driver-class-name: org.h2.Driver
     username: sa
-    password: 
+    password:
   h2:
     console:
       enabled: true
@@ -29,16 +29,15 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
 
 app:
-  support:
-    default-language: en-US
-    human-escalation-key: 0
+  telemetry:
+    enabled: true
+    customer-brand-prefix: "Apex"
+  telephony:
+    default-country-code: US
+    area-code: "415"
+    local-start: 5000000
 
-telnyx:
-  api-key: ${TELNYX_API_KEY:}
-  public-key: ${TELNYX_PUBLIC_KEY:}
-  phone-number: ${TELNYX_PHONE_NUMBER:}
-  app-url: ${TELNYX_APP_URL:http://localhost:8080}
-  number-order-url: ${TELNYX_NUMBER_ORDER_URL:https://api.telnyx.com/v2/phone_numbers}
-
-openai:
-  api-key: ${OPENAI_API_KEY:}
+logging:
+  level:
+    org.springframework: INFO
+    com.sami9889: DEBUG
